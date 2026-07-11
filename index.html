@@ -1,56 +1,10 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<title>IS – Informationslage (iki1uc)</title>
-
-<style>
-  body { background:#000; color:#0f0; font-family:Consolas, monospace; padding:20px; }
-  h1 { color:#6cf; }
-  .box {
-    background:#111;
-    border:1px solid #333;
-    padding:12px;
-    margin:12px 0;
-  }
-</style>
-</head>
-
-<body>
-
-<h1>IS – Informationslage</h1>
-<p>Stations‑Achse: N → STA → IS → OUT → OI → IO → IN</p>
-
-<div id="out" class="box">Bereit…</div>
-
 <script type="module">
-import { PHI4 } from "./PHI4.js";
-import { TIME } from "./TIME.js";
-import { loadRESPO } from "./RESPO.js";
-import { CALC } from "./CALC.js";
+import { IS_ROUTER } from "./Router.js";
 
-// ------------------------------------------------------
-// LOAD RESPO CUBE
-// ------------------------------------------------------
-async function loadCube(){
-  return await loadRESPO("cube");
-}
-
-// ------------------------------------------------------
-// RENDER
-// ------------------------------------------------------
 async function render(){
-  const cube = await loadCube();
-  const packet = CALC(cube, PHI4, TIME);
-
-  out.textContent = JSON.stringify(packet, null, 2);
+  const data = await IS_ROUTER();
+  out.textContent = JSON.stringify(data, null, 2);
 }
 
-// ------------------------------------------------------
-// START
-// ------------------------------------------------------
 render();
 </script>
-
-</body>
-</html>
