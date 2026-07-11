@@ -2,106 +2,54 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>GHOST-SCAN – Systemlage</title>
+<title>IS – Informationslage (iki1uc)</title>
 
 <style>
-  body { font-family: Arial; background:#111; color:#eee; }
-  h1 { text-align:center; }
-  .respo-box {
-    border:1px solid #444;
-    padding:10px;
-    margin:10px;
-    background:#222;
+  body { background:#000; color:#0f0; font-family:Consolas, monospace; padding:20px; }
+  h1 { color:#6cf; }
+  .box {
+    background:#111;
+    border:1px solid #333;
+    padding:12px;
+    margin:12px 0;
   }
-  .ok { color:#00ff88; }
-  .help { color:#ffcc00; }
-  .error { color:#ff4444; }
 </style>
 </head>
 
 <body>
 
-<h1>GHOST‑SCAN – Systemlage</h1>
+<h1>IS – Informationslage</h1>
+<p>Stations‑Achse: N → STA → IS → OUT → OI → IO → IN</p>
 
-<div id="output"></div>
+<div id="out" class="box">Bereit…</div>
 
-<script src="/fin.e.js"></script>
-
-<script>
-// ------------------------------------------------------
-// RESPO-Liste (ALLE Cluster)
-// ------------------------------------------------------
-const RESPO_NAMES = [
-  "AIR",
-  "boerse",
-  "markt3",
-  "HOME",
-  "USE",
-  "ACSH",
-  "REAL",
-  "BIL",
-  "DU",
-  "NG"
-];
+<script type="module">
+import { PHI4 } from "./PHI4.js";
+import { TIME } from "./TIME.js";
+import { loadRESPO } from "./RESPO.js";
+import { CALC } from "./CALC.js";
 
 // ------------------------------------------------------
-// Loader
+// LOAD RESPO CUBE
 // ------------------------------------------------------
-async function loadRespo(name){
-  try {
-    const res = await fetch(`/RESPO/${name}.json`);
-    return await res.json();
-  } catch(e){
-    return { NAME:name, MISS:true };
-  }
-}
-
-async function loadAllRespos(){
-  const respos = [];
-  for(const n of RESPO_NAMES){
-    respos.push(await loadRespo(n));
-  }
-  return respos;
+async function loadCube(){
+  return await loadRESPO("cube");
 }
 
 // ------------------------------------------------------
-// Renderer
+// RENDER
 // ------------------------------------------------------
-function renderScan(scan){
-  const out = document.getElementById("output");
-  out.innerHTML = "";
+async function render(){
+  const cube = await loadCube();
+  const packet = CALC(cube, PHI4, TIME);
 
-  scan.forEach(r => {
-    const box = document.createElement("div");
-    box.className = "respo-box";
-
-    let statusClass = "ok";
-    if(r.RESULT === "HELFEN") statusClass = "help";
-    if(r.ERROR === true) statusClass = "error";
-    if(r.MISS === true) statusClass = "error";
-
-    box.innerHTML = `
-      <h2 class="${statusClass}">${r.NAME}</h2>
-      <p><b>ID:</b> ${r.ID}</p>
-      <p><b>LAGE:</b> ${r.RAUM ? JSON.stringify(r.RAUM) : "(keine LAGE)"}</p>
-      <p><b>STATUS:</b> ${r.STATUS}</p>
-      <p><b>RESULT:</b> ${r.RESULT}</p>
-      <p><b>OUT:</b> ${JSON.stringify(r.OUT)}</p>
-      <p><b>REAL:</b> ${r.WAHRHEIT || "?"}</p>
-      <p><b>EDIT:</b> ${r.IST_IST || "?"}</p>
-    `;
-
-    out.appendChild(box);
-  });
+  out.textContent = JSON.stringify(packet, null, 2);
 }
 
 // ------------------------------------------------------
-// Start
+// START
 // ------------------------------------------------------
-loadAllRespos().then(respos => {
-  const scan = respos.map(r => GHOST_SCAN_REAL(r));
-  renderScan(scan);
-});
+render();
 </script>
 
 </body>
