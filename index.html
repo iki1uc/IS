@@ -1,8 +1,8 @@
 <script type="module">
-import { IS_ROUTER } from "./Router.js";
+import { ROUTER } from "./Router.js";
 
 async function render(){
-  const data = await IS_ROUTER();
+  const data = await ROUTER();
   out.textContent = JSON.stringify(data, null, 2);
 }
 
